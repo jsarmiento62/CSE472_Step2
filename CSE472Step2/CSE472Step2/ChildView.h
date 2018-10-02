@@ -45,6 +45,8 @@ private:
 	UINT_PTR m_spinTimer;
 	CGrCamera m_camera;
 	CMesh m_mesh;
+	int m_scene;
+	
 public:
 	afx_msg void OnStepSpin();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
@@ -52,5 +54,7 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnStepMesh();
+private:
+	void CreateMesh();
 };
 

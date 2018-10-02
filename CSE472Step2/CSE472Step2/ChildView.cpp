@@ -15,6 +15,7 @@
 
 CChildView::CChildView()
 {
+	CreateMesh();
 	m_wood.LoadFile(L"textures/plank01.bmp");
 	m_spinAngle = 0;
 	m_spinTimer = 0;
@@ -120,6 +121,7 @@ void CChildView::OnGLDraw(CDC *pDC)
 	Box(3., 3., 3., RED);
 	glPopMatrix();
 
+	switch (m_scene) {
 	case ID_STEP_MESH:
 		glPushMatrix();
 		glRotated(m_spinAngle / 3, 0, 1, 0);
@@ -129,7 +131,7 @@ void CChildView::OnGLDraw(CDC *pDC)
 
 		glPopMatrix();
 		break;
-
+	}
 
 
 }
@@ -260,5 +262,24 @@ void CChildView::OnRButtonDown(UINT nFlags, CPoint point)
 
 void CChildView::OnStepMesh()
 {
-	// TODO: Add your command handler code here
+	m_scene = ID_STEP_MESH;
+	Invalidate();
 }
+void CChildView::CreateMesh()
+{
+	double v[8][4] = { { 0, 0, 2, 1 },{ 2, 0, 2, 1 },{ 2, 2, 2, 1 },{ 0, 2, 2, 1 },
+	{ 0, 0, 0, 1 },{ 2, 0, 0, 1 },{ 2, 2, 0, 1 },{ 0, 2, 0, 1 } };
+	double n[6][4] = { { 0, 0, 1, 0 },{ 1, 0, 0, 0 },{ 0, 0, -1, 0 },
+	{ -1, 0, 0, 0 },{ 0, 1, 0, 0 },{ 0, -1, 0, 0 } };
+
+	for (int i = 0; i<8; i++)
+		m_mesh.AddVertex(v[i]);
+
+	for (int i = 0; i<6; i++)
+		m_mesh.AddNormal(n[i]);
+
+	m_mesh.AddTriangleVertex(0, 0, -1);
+	m_mesh.AddTriangleVertex(1, 0, -1);
+	m_mesh.AddTriangleVertex(2, 0, -1);
+}
+
