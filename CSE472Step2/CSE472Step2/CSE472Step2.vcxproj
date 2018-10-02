@@ -188,6 +188,7 @@
   <ItemGroup>
     <ClInclude Include="ChildView.h" />
     <ClInclude Include="CSE472Step2.h" />
+    <ClInclude Include="graphics\GrTexture.h" />
     <ClInclude Include="graphics\OpenGLWnd.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="Resource.h" />
@@ -197,6 +198,7 @@
   <ItemGroup>
     <ClCompile Include="ChildView.cpp" />
     <ClCompile Include="CSE472Step2.cpp" />
+    <ClCompile Include="graphics\GrTexture.cpp" />
     <ClCompile Include="graphics\OpenGLWnd.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="stdafx.cpp">

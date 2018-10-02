@@ -15,6 +15,9 @@
 
 CChildView::CChildView()
 {
+	m_wood.LoadFile(L"textures/plank01.bmp");
+	m_spinAngle = 0;
+	m_spinTimer = 0;
 }
 
 CChildView::~CChildView()
@@ -25,6 +28,8 @@ CChildView::~CChildView()
 BEGIN_MESSAGE_MAP(CChildView, COpenGLWnd)
 	ON_WM_PAINT()
 	ON_COMMAND(ID_FILE_SAVEBMPFILE32772, &CChildView::OnSaveImage)
+	ON_COMMAND(ID_STEP_SPIN, &CChildView::OnStepSpin)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -82,7 +87,8 @@ void CChildView::OnGLDraw(CDC *pDC)
 						  //
 						  // Some standard parameters
 						  //
-
+	GLfloat lightpos[] = { 0.5,2.0,1.0,0. };
+	glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 						  // Enable depth test
 	glEnable(GL_DEPTH_TEST);
 
@@ -93,6 +99,7 @@ void CChildView::OnGLDraw(CDC *pDC)
 	// Enable lighting
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+	
 
 	// Draw a coordinate axis
 	glColor3d(0., 1., 1.);
@@ -110,8 +117,20 @@ void CChildView::OnGLDraw(CDC *pDC)
 	// 
 	// INSERT DRAWING CODE HERE
 	//
+	GLfloat msugreen[] = { 1.f, 1.f, 1.f, 1.f };
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, msugreen);
+
 	const double RED[] = { 0.7, 0.0, 0.0 };
+	
+	glPushMatrix();
+	glTranslated(1.5, 1.5, 1.5);
+	glRotated(m_spinAngle, 0., 0., 1.);
+	glTranslated(-1.5, -1.5, -1.5);
 	Box(3., 3., 3., RED);
+	glPopMatrix();
+
+
+
 }
 
 
@@ -128,9 +147,13 @@ void CChildView::OnSaveImage()
 inline void Quad(GLdouble *v1, GLdouble *v2, GLdouble *v3, GLdouble *v4)
 {
 	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0);
 	glVertex3dv(v1);
+	glTexCoord2f(1, 0);
 	glVertex3dv(v2);
+	glTexCoord2f(1, 1);
 	glVertex3dv(v3);
+	glTexCoord2f(0, 1);
 	glVertex3dv(v4);
 	glEnd();
 }
@@ -156,23 +179,55 @@ void CChildView::Box(GLdouble p_x, GLdouble p_y, GLdouble p_z, const GLdouble *p
 	GLdouble g[] = { p_x, p_y, 0. };
 	GLdouble h[] = { 0., p_y, 0. };
 
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glBindTexture(GL_TEXTURE_2D, m_wood.TexName());
+
 	// I'm going to mess with the colors a bit so
 	// the faces will be visible in solid shading
-	glColor3d(p_color[0], p_color[1], p_color[2]);
+	glNormal3d(0, 0, 1);
 	Quad(a, b, c, d); // Front
 
-	glColor3d(p_color[0] * 0.95, p_color[1] * 0.95, p_color[2] * 0.95);
+	glNormal3d(1, 0, 0);
 	Quad(c, b, f, g); // Right
 
-	glColor3d(p_color[0] * 0.85, p_color[1] * 0.85, p_color[2] * 0.85);
+	glNormal3d(0, 0, -1);
 	Quad(h, g, f, e); // Back
 
-	glColor3d(p_color[0] * 0.90, p_color[1] * 0.90, p_color[2] * 0.90);
+	glNormal3d(-1, 0, 0);
 	Quad(d, h, e, a); // Left
 
-	glColor3d(p_color[0] * 0.92, p_color[1] * 0.92, p_color[2] * 0.92);
+	glNormal3d(0, 1, 0);
 	Quad(d, c, g, h); // Top
 
-	glColor3d(p_color[0] * 0.80, p_color[1] * 0.80, p_color[2] * 0.80);
+	glNormal3d(0, -1, 0);
 	Quad(e, f, b, a); // Bottom
+
+	//diable texturing afterwards to prevent interfering with other parts of the rendering code
+	glDisable(GL_TEXTURE_2D);
+}
+
+
+void CChildView::OnStepSpin()
+{
+	if (m_spinTimer == 0)
+	{
+		// Create the timer
+		m_spinTimer = SetTimer(1, 30, NULL);
+	}
+	else
+	{
+		// Destroy the timer
+		KillTimer(m_spinTimer);
+		m_spinTimer = 0;
+	}
+}
+
+
+void CChildView::OnTimer(UINT_PTR nIDEvent)
+{
+	m_spinAngle += 5;       // 5 degrees every 30ms about
+	Invalidate();
+
+	COpenGLWnd::OnTimer(nIDEvent);
 }

@@ -124,6 +124,10 @@ BEGIN
     BEGIN
         MENUITEM "&About CSE472Step2...",       ID_APP_ABOUT
     END
+    POPUP "&Step"
+    BEGIN
+        MENUITEM "&Spin",                       ID_STEP_SPIN
+    END
 END
 
 
