@@ -18,6 +18,7 @@ CChildView::CChildView()
 	m_wood.LoadFile(L"textures/plank01.bmp");
 	m_spinAngle = 0;
 	m_spinTimer = 0;
+	m_camera.Set(20, 10, 50, 0, 0, 0, 0, 1, 0);
 }
 
 CChildView::~CChildView()
@@ -30,6 +31,10 @@ BEGIN_MESSAGE_MAP(CChildView, COpenGLWnd)
 	ON_COMMAND(ID_FILE_SAVEBMPFILE32772, &CChildView::OnSaveImage)
 	ON_COMMAND(ID_STEP_SPIN, &CChildView::OnStepSpin)
 	ON_WM_TIMER()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_MOUSEMOVE()
+	ON_WM_RBUTTONDOWN()
+	ON_COMMAND(ID_STEP_MESH, &CChildView::OnStepMesh)
 END_MESSAGE_MAP()
 
 
@@ -62,23 +67,9 @@ void CChildView::OnGLDraw(CDC *pDC)
 	// Set up the camera
 	//
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	// Determine the screen size so we can determine the aspect ratio
 	int width, height;
 	GetSize(width, height);
-	GLdouble aspectratio = GLdouble(width) / GLdouble(height);
-
-	// Set the camera parameters
-	gluPerspective(25.,         // Vertical FOV degrees.
-		aspectratio, // The aspect ratio.
-		10.,         // Near clipping 40/130
-		200.);       // Far clipping
-
-					 // Set the camera location
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	m_camera.Apply(width, height);
 
 	gluLookAt(20., 10., 50.,    // eye x,y,z
 		0., 0., 0.,       // center x,y,z
@@ -128,6 +119,16 @@ void CChildView::OnGLDraw(CDC *pDC)
 	glTranslated(-1.5, -1.5, -1.5);
 	Box(3., 3., 3., RED);
 	glPopMatrix();
+
+	case ID_STEP_MESH:
+		glPushMatrix();
+		glRotated(m_spinAngle / 3, 0, 1, 0);
+
+		// TODO: Draw the mesh
+		m_mesh.Draw();
+
+		glPopMatrix();
+		break;
 
 
 
@@ -230,4 +231,34 @@ void CChildView::OnTimer(UINT_PTR nIDEvent)
 	Invalidate();
 
 	COpenGLWnd::OnTimer(nIDEvent);
+}
+
+
+void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	m_camera.MouseDown(point.x, point.y);
+
+	COpenGLWnd::OnLButtonDown(nFlags, point);
+}
+
+
+void CChildView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	if (m_camera.MouseMove(point.x, point.y, nFlags))
+		Invalidate();
+	COpenGLWnd::OnMouseMove(nFlags, point);
+}
+
+
+
+void CChildView::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	m_camera.MouseDown(point.x, point.y, 2);
+	COpenGLWnd::OnRButtonDown(nFlags, point);
+}
+
+
+void CChildView::OnStepMesh()
+{
+	// TODO: Add your command handler code here
 }

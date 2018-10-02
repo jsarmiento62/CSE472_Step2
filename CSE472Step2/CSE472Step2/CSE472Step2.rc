@@ -127,6 +127,7 @@ BEGIN
     POPUP "&Step"
     BEGIN
         MENUITEM "&Spin",                       ID_STEP_SPIN
+        MENUITEM "&Mesh",                       ID_STEP_MESH
     END
 END
 
