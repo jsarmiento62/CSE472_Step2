@@ -4,11 +4,11 @@
 
 
 #pragma once
-
+#include "graphics/OpenGLWnd.h"
 
 // CChildView window
 
-class CChildView : public CWnd
+class CChildView : public COpenGLWnd
 {
 // Construction
 public:
@@ -30,7 +30,10 @@ public:
 
 	// Generated message map functions
 protected:
-	afx_msg void OnPaint();
 	DECLARE_MESSAGE_MAP()
+public:
+	void OnGLDraw(CDC *pDC);
+	afx_msg void OnSaveImage();
+	void Box(GLdouble p_x, GLdouble p_y, GLdouble p_z, const GLdouble * p_color);
 };
 
