@@ -45,6 +45,8 @@ private:
 	UINT_PTR m_spinTimer;
 	CGrCamera m_camera;
 	CMesh m_mesh;
+	CMesh m_surface;
+	CMesh m_fish;
 	int m_scene;
 	
 public:
@@ -56,5 +58,7 @@ public:
 	afx_msg void OnStepMesh();
 private:
 	void CreateMesh();
+public:
+	afx_msg void OnStepFish();
 };
 

@@ -8,6 +8,9 @@ public:
 	~CMesh();
 	void Draw();
 	void AddTriangleVertex(int v, int n, int t);
+	void AddFlatQuad(int a, int b, int c, int d, int n);
+	void AddQuad(int a, int b, int c, int d);
+	void LoadOBJ(const char * filename);
 	void AddVertex(const CGrVector &v) { m_vertices.push_back(v); }
 	void AddNormal(const CGrVector &n) { m_normals.push_back(n); }
 	void AddTexCoord(const CGrVector &t) { m_tvertices.push_back(t); }

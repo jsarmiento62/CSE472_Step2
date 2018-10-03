@@ -36,6 +36,7 @@ BEGIN_MESSAGE_MAP(CChildView, COpenGLWnd)
 	ON_WM_MOUSEMOVE()
 	ON_WM_RBUTTONDOWN()
 	ON_COMMAND(ID_STEP_MESH, &CChildView::OnStepMesh)
+	ON_COMMAND(ID_STEP_FISH, &CChildView::OnStepFish)
 END_MESSAGE_MAP()
 
 
@@ -126,8 +127,14 @@ void CChildView::OnGLDraw(CDC *pDC)
 		glPushMatrix();
 		glRotated(m_spinAngle / 3, 0, 1, 0);
 
-		// TODO: Draw the mesh
+		glPushMatrix();
+		glTranslated(0, 4, 0);
 		m_mesh.Draw();
+		glPopMatrix();
+
+		m_surface.Draw();
+
+		m_fish.Draw();
 
 		glPopMatrix();
 		break;
@@ -278,8 +285,64 @@ void CChildView::CreateMesh()
 	for (int i = 0; i<6; i++)
 		m_mesh.AddNormal(n[i]);
 
-	m_mesh.AddTriangleVertex(0, 0, -1);
-	m_mesh.AddTriangleVertex(1, 0, -1);
-	m_mesh.AddTriangleVertex(2, 0, -1);
+	m_mesh.AddFlatQuad(0, 1, 2, 3, 0);
+	m_mesh.AddFlatQuad(1, 5, 6, 2, 1);
+	m_mesh.AddFlatQuad(5, 4, 7, 6, 2);
+	m_mesh.AddFlatQuad(4, 0, 3, 7, 3);
+	m_mesh.AddFlatQuad(3, 2, 6, 7, 4);
+	m_mesh.AddFlatQuad(0, 4, 5, 1, 5);
+
+	//
+	// Create a surface
+	//
+
+	double wid = 20;        // 20 units wide
+	double dep = 20;        // 20 units deep
+	int nW = 15;            // Number of quads across
+	int nD = 15;            // Number of quads deep
+	const double PI = 3.141592653;
+
+	// Create the vertices and -temporary- normals
+	// Note that the surface is nW+1 by nD+1 vertices
+	for (int j = 0; j <= nD; j++)
+	{
+		for (int i = 0; i <= nW; i++)
+		{
+			double x = double(i) / double(nW) * wid - wid / 2;
+			double z = double(j) / double(nD) * dep - dep / 2;
+			double y = sin(double(i) / double(nW) * 4 * PI) +
+				sin(double(j) / double(nD) * 3 * PI);
+
+			CGrVector normal(-4 * PI / wid * cos(double(i) / double(nW) * 4 * PI),
+				1., -3 * PI / dep * cos(double(j) / double(nD) * 3 * PI));
+			normal.Normalize();
+
+
+			m_surface.AddVertex(CGrVector(x, y, z, 1));
+			m_surface.AddNormal(normal);
+		}
+	}
+
+	// Create the quadrilaterals
+	for (int j = 0; j<nD; j++)
+	{
+		for (int i = 0; i<nW; i++)
+		{
+			int a = j * (nW + 1) + i;
+			int b = a + nW + 1;
+			int c = b + 1;
+			int d = a + 1;
+
+			m_surface.AddQuad(a, b, c, d);
+		}
+	}
+
+	m_fish.LoadOBJ("models\\fish4.obj");
 }
 
+
+
+void CChildView::OnStepFish()
+{
+	m_scene = ID_STEP_MESH;
+}
